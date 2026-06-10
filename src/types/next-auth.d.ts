@@ -1,0 +1,27 @@
+import "next-auth";
+
+declare module "next-auth" {
+  interface User {
+    isPremium?: boolean;
+    isAdmin?: boolean;
+  }
+
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      isPremium?: boolean;
+      isAdmin?: boolean;
+    };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    isPremium?: boolean;
+    isAdmin?: boolean;
+  }
+}

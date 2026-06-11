@@ -316,6 +316,12 @@ export default function ChallengePage() {
         return renderMemoryChallenge();
       case "mini-game":
         return renderMiniGameChallenge();
+      case "trivia":
+        return renderTriviaChallenge();
+      case "anagram":
+        return renderAnagramChallenge();
+      case "number-sequence":
+        return renderNumberSequenceChallenge();
       default:
         return <div>Unknown challenge type</div>;
     }
@@ -508,6 +514,118 @@ export default function ChallengePage() {
               )}
             >
               {opt.charAt(0) + opt.slice(1).toLowerCase()}
+            </button>
+          ))}
+        </div>
+        {userAnswer !== null && (
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="mt-6 w-full rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple py-3 font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
+          >
+            {loading ? "Submitting..." : "Submit Answer"}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  function renderTriviaChallenge() {
+    const options = challenge.content.options || [];
+    return (
+      <div>
+        <p className="mb-6 text-lg text-white">{challenge.content.question}</p>
+        <div className="space-y-3">
+          {options.map((opt: string, i: number) => (
+            <button
+              key={i}
+              onClick={() => setUserAnswer(opt)}
+              className={cn(
+                "w-full rounded-xl border p-4 text-left font-medium transition-all",
+                userAnswer === opt
+                  ? "border-neon-blue bg-neon-blue/20 text-neon-blue"
+                  : "border-dark-600 bg-dark-700 text-white hover:border-dark-400"
+              )}
+            >
+              <span className="mr-3 text-dark-200">{String.fromCharCode(65 + i)}.</span>
+              {opt}
+            </button>
+          ))}
+        </div>
+        {userAnswer !== null && (
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="mt-6 w-full rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple py-3 font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
+          >
+            {loading ? "Submitting..." : "Submit Answer"}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  function renderAnagramChallenge() {
+    const options = challenge.content.options || [];
+    return (
+      <div className="text-center">
+        <div className="mb-6 text-4xl font-bold tracking-[0.3em] text-neon-purple">
+          {challenge.content.clue}
+        </div>
+        <p className="mb-4 text-sm text-dark-200">Which word can be formed from these letters?</p>
+        <div className="space-y-3">
+          {options.map((opt: string, i: number) => (
+            <button
+              key={i}
+              onClick={() => setUserAnswer(opt)}
+              className={cn(
+                "w-full rounded-xl border p-4 text-lg font-medium transition-all",
+                userAnswer === opt
+                  ? "border-neon-blue bg-neon-blue/20 text-neon-blue"
+                  : "border-dark-600 bg-dark-700 text-white hover:border-dark-400"
+              )}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+        {userAnswer !== null && (
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="mt-6 w-full rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple py-3 font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
+          >
+            {loading ? "Submitting..." : "Submit Answer"}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  function renderNumberSequenceChallenge() {
+    const options = challenge.content.options || [];
+    const sequence = challenge.content.sequence || [];
+    return (
+      <div>
+        <div className="mb-6 text-center">
+          <div className="text-2xl font-bold text-neon-blue">
+            {sequence.join("  →  ")}
+          </div>
+          <div className="mt-2 text-lg text-dark-200">→ ?</div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {options.map((opt: number, i: number) => (
+            <button
+              key={i}
+              onClick={() => setUserAnswer(opt)}
+              className={cn(
+                "rounded-xl border p-4 text-xl font-bold transition-all",
+                userAnswer === opt
+                  ? "border-neon-blue bg-neon-blue/20 text-neon-blue"
+                  : "border-dark-600 bg-dark-700 text-white hover:border-dark-400"
+              )}
+            >
+              {opt}
             </button>
           ))}
         </div>

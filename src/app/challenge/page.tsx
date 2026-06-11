@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Clock, Check, X, RefreshCw, Brain } from "lucide-react";
 import { formatTime, cn } from "@/lib/utils";
 import { useTimerStore, useChallengeStore } from "@/lib/store";
+import { playClick, playStart, playSuccess, playFail, playTick, playWarning, playHover } from "@/lib/sounds";
+import { useTheme } from "@/lib/theme";
 
 type ChallengeView = "start" | "playing" | "completed" | "failed";
 
@@ -20,8 +22,10 @@ export default function ChallengePage() {
   const [loading, setLoading] = useState(false);
   const [showSequence, setShowSequence] = useState(true);
   const [remembered, setRemembered] = useState<string[]>([]);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { colors } = useTheme();
 
   useEffect(() => {
     fetchChallenge();
@@ -54,8 +58,11 @@ export default function ChallengePage() {
     setView("playing");
     timer.startTimer();
     challengeStore.startChallenge();
+    if (soundEnabled) playStart();
     intervalRef.current = setInterval(() => {
       timer.tick();
+      if (soundEnabled && timer.timeLeft <= 60 && timer.timeLeft > 0 && timer.timeLeft % 10 === 0) playWarning();
+      if (soundEnabled && timer.timeLeft <= 120 && timer.timeLeft > 0) playTick();
     }, 1000);
 
     if (challenge?.type === "memory") {
@@ -68,7 +75,7 @@ export default function ChallengePage() {
     setView("failed");
     timer.stopTimer();
     challengeStore.completeChallenge();
-    playSound("fail");
+    if (soundEnabled) playFail();
   };
 
   const handleSubmit = async () => {
@@ -92,10 +99,10 @@ export default function ChallengePage() {
       setResult(data);
       if (data.correct) {
         setView("completed");
-        playSound("success");
+        if (soundEnabled) playSuccess();
       } else {
         setView("failed");
-        playSound("fail");
+        if (soundEnabled) playFail();
       }
     } catch (e) {
       console.error("Failed to submit", e);
@@ -104,34 +111,6 @@ export default function ChallengePage() {
       timer.stopTimer();
       if (intervalRef.current) clearInterval(intervalRef.current);
       challengeStore.completeChallenge();
-    }
-  };
-
-  const playSound = (type: "success" | "fail") => {
-    try {
-      const ctx = new AudioContext();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      if (type === "success") {
-        osc.frequency.value = 800;
-        osc.type = "sine";
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.5);
-      } else {
-        osc.frequency.value = 300;
-        osc.type = "sawtooth";
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.3);
-      }
-    } catch (e) {
-      // Audio not available
     }
   };
 
@@ -188,7 +167,12 @@ export default function ChallengePage() {
             </div>
             <button
               onClick={startChallenge}
-              className="group inline-flex items-center gap-3 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple px-8 py-4 text-lg font-bold text-white transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(0,212,255,0.3)]"
+              className="group inline-flex items-center gap-3 rounded-xl px-8 py-4 text-lg font-bold text-white transition-all hover:scale-105"
+              style={{
+                background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
+                boxShadow: `0 0 30px ${colors.glow}`,
+              }}
+              onMouseEnter={() => soundEnabled && playHover()}
             >
               <Clock className="h-5 w-5" />
               Start Timer (5:00)
@@ -205,11 +189,20 @@ export default function ChallengePage() {
             className="py-8"
           >
             <div className="mb-8 text-center">
-              <div className={cn("text-6xl font-bold tabular-nums", timerColor)}>
+              <div className={cn("text-6xl font-bold tabular-nums transition-all duration-300", timerColor)}>
                 {formatTime(timer.timeLeft)}
               </div>
-              <div className="mt-2 text-sm text-dark-200">
-                Time remaining
+              <div className="mt-2 flex items-center justify-center gap-3 text-sm text-dark-200">
+                <span>Time remaining</span>
+                <button
+                  onClick={() => setSoundEnabled(!soundEnabled)}
+                  className={cn(
+                    "rounded px-2 py-0.5 text-xs transition-colors",
+                    soundEnabled ? "text-neon-green" : "text-dark-400"
+                  )}
+                >
+                  {soundEnabled ? "Sound ON" : "Sound OFF"}
+                </button>
               </div>
             </div>
 
@@ -229,10 +222,10 @@ export default function ChallengePage() {
             exit={{ opacity: 0 }}
             className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center text-center"
           >
-            <div className="mb-6 rounded-full bg-neon-green/10 p-8">
-              <Check className="h-16 w-16 text-neon-green" />
+            <div className="mb-6 rounded-full p-8" style={{ backgroundColor: `${colors.primary}20` }}>
+              <Check className="h-16 w-16" style={{ color: colors.primary }} />
             </div>
-            <h1 className="mb-2 text-4xl font-bold text-neon-green">
+            <h1 className="mb-2 text-4xl font-bold" style={{ color: colors.primary }}>
               Challenge Complete!
             </h1>
             <p className="mb-8 text-dark-100">

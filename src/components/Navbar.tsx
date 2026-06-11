@@ -5,6 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { Zap, Menu, X, Trophy, User, LogOut, LayoutDashboard, Crown } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -27,6 +28,7 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-6 md:flex">
+          <ThemeSwitcher />
           {links.map((link) => (
             <Link
               key={link.href}

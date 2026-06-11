@@ -3,11 +3,18 @@
 import Link from "next/link";
 import { ArrowRight, Zap, Trophy, Users, Clock, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTheme } from "@/lib/theme";
 
 export default function HomePage() {
+  const { colors } = useTheme();
   return (
     <div className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,212,255,0.15),transparent_50%)]" />
+      <div
+        className="pointer-events-none absolute inset-0 transition-all duration-500"
+        style={{
+          background: `radial-gradient(ellipse_at_top, ${colors.primary}15, transparent 50%)`,
+        }}
+      />
 
       <section className="relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-4 text-center">
         <motion.div

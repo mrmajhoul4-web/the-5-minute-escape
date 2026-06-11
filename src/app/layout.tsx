@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
+import ThemeProvider from "@/components/ThemeProvider";
+import Particles from "@/components/Particles";
 import Navbar from "@/components/Navbar";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,11 +29,14 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
         <SessionProvider>
-          <Navbar />
-          <main className="min-h-screen pt-16">{children}</main>
+          <ThemeProvider>
+            <Particles />
+            <Navbar />
+            <main className="relative z-10 min-h-screen pt-16">{children}</main>
           <footer className="border-t border-dark-600/50 py-8 text-center text-sm text-dark-200">
             <p>&copy; {new Date().getFullYear()} The 5-Minute Escape. All rights reserved.</p>
           </footer>
+          </ThemeProvider>
         </SessionProvider>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0000000000000000" crossOrigin="anonymous" />
       </body>
